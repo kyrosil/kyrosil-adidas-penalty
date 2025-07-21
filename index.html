@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyrosil x Adidas: Penaltı Shoot</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div id="languageSwitcher">
+    <button onclick="setLanguage('tr')">🇹🇷 Türkçe</button>
+    <button onclick="setLanguage('en')">🇬🇧 English</button>
+  </div>
 
+  <div class="logo-container">
+    <img src="https://kyrosil.eu/wp-content/uploads/2025/04/adsiz-tasarim.png" class="logo-circle" alt="Kyrosil Logo" />
+    <img src="https://upload.wikimedia.org/wikipedia/tr/0/0f/Adidas_Logo.svg" class="logo-circle" alt="Adidas Logo" />
+  </div>
+
+  <h1 id="gameTitle">Kyrosil x Adidas: Penaltı Shoot</h1>
+  <p id="gameDesc">Yapay zekâya karşı mücadele et, ödülleri kazan!</p>
+
+  <form id="playerForm">
+    <input type="email" id="email" placeholder="Adidas e-posta adresi" required />
+    <input type="text" id="country" placeholder="Ülke" required />
+    <input type="text" id="username" placeholder="Instagram veya EU Portal kullanıcı adı" required />
+
+    <label>
+      <input type="checkbox" id="privacyConsent" required />
+      <span id="consentLabel">KVKK onayını kabul ediyorum.</span>
+    </label>
+
+    <button type="submit" id="startButton">Başla</button>
+  </form>
+
+  <div id="gameScene" style="display:none;">
+    <!-- Buraya oyun sahnesi gelecek -->
+    <p>Oyun başlıyor... ⚽</p>
+  </div>
+</body>
+</html>
