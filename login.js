@@ -95,26 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const checkPlayLimit = () => {
         const today = new Date().toISOString().split('T')[0];
-        const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
-        if (playData && playData.date === today && playData.count >= 3) {
+        const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData')) || {};
+        if (playData.date === today && playData.lives !== undefined && playData.lives <= 0) {
             alert(translations[localStorage.getItem('preferredLanguage') || 'tr'].limitReached);
-            form.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
             return false;
         }
         return true;
     };
     
-    const updatePlayCount = () => {
-        const today = new Date().toISOString().split('T')[0];
-        let playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
-        if (playData && playData.date === today) {
-            playData.count++;
-        } else {
-            playData = { date: today, count: 1 };
-        }
-        localStorage.setItem('kyrosilAdidasPlayData', JSON.stringify(playData));
-    };
-
     langButtons.forEach(button => {
         button.addEventListener('click', () => {
             changeLanguage(button.id.split('-')[1]);
@@ -125,25 +113,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        if (checkPlayLimit()) {
-            updatePlayCount();
-            const playerData = {
-                email: document.getElementById('email').value,
-                country: countrySelect.value,
-                username: document.getElementById('username').value,
-                lang: localStorage.getItem('preferredLanguage') || 'tr'
-            };
-            console.log('Oyuncu Bilgileri Kaydedildi:', playerData);
-            
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('game-container').classList.remove('hidden');
-            
-            window.dispatchEvent(new CustomEvent('game:start', { detail: playerData }));
+        
+        if (!checkPlayLimit()) {
+            return;
         }
+
+        const playerData = {
+            email: document.getElementById('email').value,
+            country: countrySelect.value,
+            username: document.getElementById('username').value,
+            lang: localStorage.getItem('preferredLanguage') || 'tr'
+        };
+        console.log('Oyuncu Bilgileri Kaydedildi:', playerData);
+        
+        document.getElementById('login-container').classList.add('hidden');
+        document.getElementById('game-container').classList.remove('hidden');
+        
+        window.dispatchEvent(new CustomEvent('game:start', { detail: playerData }));
     });
 
     const preferredLanguage = localStorage.getItem('preferredLanguage') || 'tr';
     changeLanguage(preferredLanguage);
-    checkPlayLimit();
     validateForm();
 });
