@@ -27,7 +27,7 @@ const game = () => {
         5: { keeperSpeed: 0.022, aiShotSpeed: 0.035 },
         6: { keeperSpeed: 0.025, aiShotSpeed: 0.036 }
     };
-    
+
     // --- Oyun Elementleri ---
     const ball = { x: 0, y: 0, radius: 0, vx: 0, vy: 0, speed: 0 };
     const keeper = { x: 0, y: 0, width: 0, height: 0, state: 'idle', diveTarget: { x: 0, y: 0 }, diveSpeed: 0, idleAnimTime: 0 };
@@ -51,20 +51,17 @@ const game = () => {
     const setupTurn = () => {
         const config = levelConfig[currentLevel];
         message.visible = false;
-        
         ball.radius = canvas.width * 0.025;
         ball.vx = 0;
         ball.vy = 0;
-        
         goal.width = canvas.width * 0.35;
         goal.height = goal.width * 0.45;
         goal.x = (canvas.width - goal.width) / 2;
-        
         keeper.width = canvas.width * 0.1;
         keeper.height = canvas.width * 0.04;
         keeper.y = goal.height - keeper.height;
         keeper.state = 'idle';
-        
+
         if (gamePhase === 'player_shot') {
             gameState = 'aiming';
             ball.x = canvas.width / 2;
@@ -268,13 +265,13 @@ const game = () => {
         const ballPastGoalLine = ball.y < goal.height;
         if (!ballPastGoalLine) {
             if (ball.y < -ball.radius * 5 || ball.x < -ball.radius * 5 || ball.x > canvas.width + ball.radius * 5) {
+                gameState = 'result';
                 displayMessage("AUT!", "#F44336");
                 if (gamePhase === 'player_shot') {
                     loseLife();
                 } else {
                     winLevel();
                 }
-                gameState = 'result';
             }
             return;
         }
@@ -304,10 +301,18 @@ const game = () => {
     };
 
     const winLevel = () => {
+        gameState = 'result';
         displayMessage(`LEVEL ${currentLevel} TAMAMLANDI!`, "#FFC107");
         if ([2, 4, 6].includes(currentLevel)) {
-            console.log(`ÖDÜL KAZANILDI: LEVEL ${currentLevel}`);
+            setTimeout(() => {
+                showRewardScreen(currentLevel);
+            }, 1500);
+        } else {
+            proceedToNextLevel();
         }
+    };
+
+    const proceedToNextLevel = () => {
         currentLevel++;
         if (currentLevel > 6) {
             displayMessage("OYUN BİTTİ! TEBRİKLER!", "#4CAF50");
@@ -317,9 +322,28 @@ const game = () => {
             setTimeout(setupTurn, 2000);
         }
     };
+    
+    const showRewardScreen = (level) => {
+        const rewardScreen = document.getElementById('reward-screen');
+        const rewardPrize = document.getElementById('reward-prize');
+        const prizes = {
+            2: { tr: "20 Euro Hediye Çeki", en: "€20 Gift Voucher" },
+            4: { tr: "50 Euro Hediye Çeki", en: "€50 Gift Voucher" },
+            6: { tr: "200 Euro Hediye Çeki", en: "€200 Gift Voucher" }
+        };
+        const lang = playerData.lang || 'tr';
+        rewardPrize.innerHTML = `<strong>Ödülün:</strong> ${prizes[level][lang]}`;
+        rewardScreen.classList.remove('hidden');
+    };
 
     const loseLife = () => {
         lives--;
+        const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData')) || {};
+        const today = new Date().toISOString().split('T')[0];
+        playData.date = today;
+        playData.lives = lives;
+        localStorage.setItem('kyrosilAdidasPlayData', JSON.stringify(playData));
+
         if (lives > 0) {
             gamePhase = 'player_shot';
             setTimeout(setupTurn, 2000);
@@ -375,6 +399,25 @@ const game = () => {
             setCanvasDimensions();
             setupTurn();
         });
+
+        const claimBtn = document.getElementById('claim-reward-btn');
+        const continueBtn = document.getElementById('continue-game-btn');
+        const rewardScreen = document.getElementById('reward-screen');
+
+        claimBtn.addEventListener('click', () => {
+            const prizes = { 2: "20 Euro Hediye Ceki", 4: "50 Euro Hediye Ceki", 6: "200 Euro Hediye Ceki" };
+            const subject = `Kyrosil x Adidas - Level ${currentLevel} Odul Talebi`;
+            const body = `Merhaba,\n\nOyununuzda Level ${currentLevel}'i başarıyla tamamladım ve ${prizes[currentLevel]} ödülümü talep etmek istiyorum.\n\nOyuncu Bilgilerim:\n- Kullanıcı Adı: ${playerData.username}\n- Adidas Mail: ${playerData.email}\n- Ülke: ${playerData.country}\n\nTeşekkürler.`;
+            const mailtoLink = `mailto:adidasgiveaway@kyrosil.eu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+            rewardScreen.classList.add('hidden');
+            proceedToNextLevel();
+        });
+
+        continueBtn.addEventListener('click', () => {
+            rewardScreen.classList.add('hidden');
+            proceedToNextLevel();
+        });
     };
 
     const gameLoop = () => {
@@ -396,12 +439,23 @@ const game = () => {
     const init = (pData) => {
         playerData = pData;
         console.log("Oyun başlatılıyor...", playerData);
+        const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData')) || {};
+        const today = new Date().toISOString().split('T')[0];
+        if(playData.date === today && playData.lives !== undefined) {
+            lives = playData.lives;
+        } else {
+            lives = 3;
+        }
+        if (lives <= 0) {
+            alert("Bugünkü tüm oynama haklarınızı kullandınız!");
+            return;
+        }
         setCanvasDimensions();
         setupTurn();
         setupEventListeners();
         gameLoop();
     };
-
+    
     window.addEventListener('game:start', (event) => {
         init(event.detail);
     });
