@@ -35,14 +35,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // YENİ: Avrupa ülkeleri listesi
+    const en_euCountries = [
+        { code: 'TR', name: 'Turkey' }, { code: 'DE', name: 'Germany' }, { code: 'FR', name: 'France' },
+        { code: 'ES', name: 'Spain' }, { code: 'IT', name: 'Italy' }, { code: 'GB', name: 'United Kingdom' },
+        { code: 'NL', name: 'Netherlands' }, { code: 'BE', name: 'Belgium' }, { code: 'PT', name: 'Portugal' },
+        { code: 'SE', name: 'Sweden' }, { code: 'AT', name: 'Austria' }, { code: 'CH', name: 'Switzerland' },
+        { code: 'PL', name: 'Poland' }, { code: 'GR', name: 'Greece' }, { code: 'IE', name: 'Ireland' },
+        { code: 'DK', name: 'Denmark' }, { code: 'FI', name: 'Finland' }, { code: 'NO', name: 'Norway' },
+        // Diğer Avrupa ülkeleri buraya eklenebilir...
+    ];
+    const tr_countries = [
+        { code: 'TR', name: 'Türkiye' }
+    ];
+
     // --- HTML Elementlerini Seçme ---
     const langButtons = document.querySelectorAll('.lang-switcher button');
     const form = document.getElementById('player-info-form');
     const inputs = form.querySelectorAll('input, select');
     const startGameBtn = document.getElementById('start-game-btn');
     const elementsToTranslate = document.querySelectorAll('[data-lang-key]');
+    const countrySelect = document.getElementById('country'); // Ülke dropdown'ını seç
 
-    // --- Dil Değiştirme Fonksiyonu ---
+    // YENİ: Ülke listesini dinamik olarak dolduran fonksiyon
+    const populateCountries = (lang) => {
+        const countries = (lang === 'tr') ? tr_countries : en_euCountries;
+        countrySelect.innerHTML = ''; // Mevcut seçenekleri temizle
+
+        // Varsayılan "Ülke Seçin" seçeneğini ekle
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = translations[lang].selectCountry;
+        countrySelect.appendChild(defaultOption);
+        
+        // Listeden ülkeleri ekle
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.textContent = country.name;
+            countrySelect.appendChild(option);
+        });
+    };
+
+    // --- Dil Değiştirme Fonksiyonu (GÜNCELLENDİ) ---
     const changeLanguage = (lang) => {
         elementsToTranslate.forEach(element => {
             const key = element.getAttribute('data-lang-key');
@@ -50,11 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.innerHTML = translations[lang][key];
             }
         });
-        // Aktif dil butonunu ayarla
+
+        // GÜNCELLEME: Ülke listesini seçilen dile göre yeniden doldur
+        populateCountries(lang);
+
         document.querySelector('.lang-switcher .active').classList.remove('active');
         document.getElementById(`lang-${lang}`).classList.add('active');
-        // Seçilen dili hafızaya kaydet
         localStorage.setItem('preferredLanguage', lang);
+        
+        // Dil değiştiğinde formun geçerliliğini tekrar kontrol et
+        validateForm();
     };
 
     // --- Form Doğrulama Fonksiyonu ---
@@ -72,9 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Günlük Oynama Hakkı Kontrolü ---
     const checkPlayLimit = () => {
-        const today = new Date().toISOString().split('T')[0]; // Bugünün tarihi YYYY-MM-DD formatında
+        const today = new Date().toISOString().split('T')[0];
         const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
-
         if (playData && playData.date === today && playData.count >= 3) {
             alert(translations[localStorage.getItem('preferredLanguage') || 'tr'].limitReached);
             form.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
@@ -87,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const updatePlayCount = () => {
         const today = new Date().toISOString().split('T')[0];
         let playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
-
         if (playData && playData.date === today) {
             playData.count++;
         } else {
@@ -97,47 +135,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Olay Dinleyicilerini (Event Listeners) Ayarlama ---
-
-    // Dil butonlarına tıklama olayı
     langButtons.forEach(button => {
         button.addEventListener('click', () => {
             changeLanguage(button.id.split('-')[1]);
         });
     });
-
-    // Formdaki her değişiklikte doğrulamayı çalıştır
     form.addEventListener('input', validateForm);
-
-    // Form gönderildiğinde (Oyuna Başla'ya tıklandığında)
     form.addEventListener('submit', (event) => {
-        event.preventDefault(); // Sayfanın yeniden yüklenmesini engelle
-        
+        event.preventDefault();
         if (checkPlayLimit()) {
             updatePlayCount();
-            
             const playerData = {
                 email: document.getElementById('email').value,
-                country: document.getElementById('country').value,
+                country: countrySelect.value,
                 username: document.getElementById('username').value,
                 lang: localStorage.getItem('preferredLanguage') || 'tr'
             };
-            
             console.log('Oyun Başlatılıyor! Oyuncu Bilgileri:', playerData);
             alert('Oyun Başlıyor!');
-
-            // TODO: Modül 2'ye (Oyun Ekranı) geçiş kodu buraya gelecek.
-            // Örneğin, giriş ekranını gizleyip oyun ekranını gösterebiliriz.
+            // TODO: Modül 2'ye geçiş kodu buraya gelecek.
         }
     });
 
     // --- Başlangıç Ayarları ---
-    
-    // Tarayıcı hafızasındaki dili kontrol et, yoksa varsayılan 'tr' olsun
     const preferredLanguage = localStorage.getItem('preferredLanguage') || 'tr';
-    changeLanguage(preferredLanguage);
-    
-    // Sayfa yüklendiğinde oynama hakkını kontrol et
+    changeLanguage(preferredLanguage); // Bu fonksiyon artık ülke listesini de dolduracak
     checkPlayLimit();
-    // Formun başlangıçtaki durumunu doğrula
     validateForm();
 });
