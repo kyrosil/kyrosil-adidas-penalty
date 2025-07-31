@@ -10,7 +10,6 @@ body {
     color: #f0f0f0;
     background: url('https://images.pexels.com/photos/209956/pexels-photo-209956.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center/cover;
     background-attachment: fixed;
-    /* GÜNCELLENDİ: Kaydırmayı açmak için değiştirildi */
     padding: 40px 20px;
     overflow-y: auto; 
 }
@@ -18,7 +17,7 @@ body {
 /* Arka planı karartmak için bir katman */
 body::before {
     content: '';
-    position: fixed; /* Arka plan sabit olduğu için bu da sabit olmalı */
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -36,7 +35,7 @@ body::before {
     max-width: 700px;
     width: 100%;
     text-align: center;
-    margin: 0 auto; /* Sayfada ortalamak için */
+    margin: 0 auto;
 }
 
 /* --- Başlık ve Logolar --- */
@@ -177,7 +176,7 @@ h1 {
 }
 
 #game-container {
-    position: fixed; /* Oyun ekranı her zaman tam ekranı kaplar */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -191,6 +190,23 @@ h1 {
     background-color: #000;
     box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
     border: 2px solid #007bff;
+}
+
+#mobile-instructions {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
 }
 
 /* --- Ödül Ekranı Stilleri --- */
@@ -262,7 +278,7 @@ h1 {
 }
 
 /* --- Mobil Uyum (Responsive Tasarım) --- */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container {
         padding: 20px;
     }
@@ -282,5 +298,9 @@ h1 {
     .reward-box {
         width: 90%;
         padding: 25px;
+    }
+    
+    #mobile-instructions {
+        display: block;
     }
 }
