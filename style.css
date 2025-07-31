@@ -7,22 +7,18 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    color: #f0f0f0; /* Açık gri metin rengi */
+    color: #f0f0f0;
     background: url('https://images.pexels.com/photos/209956/pexels-photo-209956.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center/cover;
-    background-attachment: fixed; /* Arka planın kaymasını engeller */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    position: relative;
-    overflow: hidden; /* Kaydırma çubuklarını engelle */
+    background-attachment: fixed;
+    /* GÜNCELLENDİ: Kaydırmayı açmak için değiştirildi */
+    padding: 40px 20px;
+    overflow-y: auto; 
 }
 
 /* Arka planı karartmak için bir katman */
 body::before {
     content: '';
-    position: absolute;
+    position: fixed; /* Arka plan sabit olduğu için bu da sabit olmalı */
     top: 0;
     left: 0;
     right: 0;
@@ -33,19 +29,18 @@ body::before {
 
 /* --- Ana Konteyner --- */
 .container {
-    background-color: rgba(13, 27, 42, 0.9); /* Koyu mavi, yarı saydam */
+    background-color: rgba(13, 27, 42, 0.9);
     padding: 30px 40px;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     max-width: 700px;
     width: 100%;
     text-align: center;
+    margin: 0 auto; /* Sayfada ortalamak için */
 }
 
 /* --- Başlık ve Logolar --- */
-.game-header {
-    /* Bu class'ı .container içindeki header için kullanmıştık, gerekirse stiller buraya */
-}
+.game-header { }
 
 .logo-container {
     display: flex;
@@ -95,7 +90,7 @@ h1 {
 
 .lang-switcher button.active,
 .lang-switcher button:hover {
-    background-color: #007bff; /* Adidas mavisi gibi bir vurgu rengi */
+    background-color: #007bff;
     border-color: #007bff;
 }
 
@@ -142,7 +137,7 @@ h1 {
     font-size: 1.2em;
     font-weight: bold;
     color: #fff;
-    background-color: #28a745; /* Yeşil, "Başla" hissi verir */
+    background-color: #28a745;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -182,7 +177,10 @@ h1 {
 }
 
 #game-container {
-    width: 100%;
+    position: fixed; /* Oyun ekranı her zaman tam ekranı kaplar */
+    top: 0;
+    left: 0;
+    width: 100vw;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -220,7 +218,7 @@ h1 {
 }
 
 .reward-box h2 {
-    color: #FFC107; /* Altın rengi */
+    color: #FFC107;
     font-size: 2.5em;
     margin-bottom: 15px;
 }
