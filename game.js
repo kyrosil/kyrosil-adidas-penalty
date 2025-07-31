@@ -18,16 +18,16 @@ const game = () => {
     let gameReadyForInput = false;
     const PENALTY_SPOT_Y_RATIO = 0.6;
 
-    // --- Seviye Zorluk Ayarları ---
+    // --- GÜNCELLENMİŞ Seviye Zorluk Ayarları ---
     const levelConfig = {
-        1: { keeperSpeed: 0.012, aiShotSpeed: 0.028 },
-        2: { keeperSpeed: 0.015, aiShotSpeed: 0.030 },
-        3: { keeperSpeed: 0.018, aiShotSpeed: 0.032 },
-        4: { keeperSpeed: 0.020, aiShotSpeed: 0.034 },
-        5: { keeperSpeed: 0.022, aiShotSpeed: 0.035 },
-        6: { keeperSpeed: 0.025, aiShotSpeed: 0.036 }
+        1: { keeperSpeed: 0.012, aiShotSpeed: 0.028, keeperError: 0.4 },  // Level 1: Kolay, kaleci çok hata yapar
+        2: { keeperSpeed: 0.016, aiShotSpeed: 0.031, keeperError: 0.2 },  // Level 2: Zor, kaleci daha akıllı
+        3: { keeperSpeed: 0.019, aiShotSpeed: 0.033, keeperError: 0.15 }, // Level 3: Daha zor
+        4: { keeperSpeed: 0.022, aiShotSpeed: 0.035, keeperError: 0.1 },  // Level 4: Çok zor, kaleci nadiren hata yapar
+        5: { keeperSpeed: 0.025, aiShotSpeed: 0.037, keeperError: 0.05 }, // Level 5: Aşırı zor
+        6: { keeperSpeed: 0.028, aiShotSpeed: 0.039, keeperError: 0.02 }  // Level 6: İmkansıza yakın, kaleci neredeyse mükemmel
     };
-
+    
     // --- Oyun Elementleri ---
     const ball = { x: 0, y: 0, radius: 0, vx: 0, vy: 0, speed: 0 };
     const keeper = { x: 0, y: 0, width: 0, height: 0, state: 'idle', diveTarget: { x: 0, y: 0 }, diveSpeed: 0, idleAnimTime: 0 };
@@ -51,17 +51,20 @@ const game = () => {
     const setupTurn = () => {
         const config = levelConfig[currentLevel];
         message.visible = false;
+        
         ball.radius = canvas.width * 0.025;
         ball.vx = 0;
         ball.vy = 0;
+        
         goal.width = canvas.width * 0.35;
         goal.height = goal.width * 0.45;
         goal.x = (canvas.width - goal.width) / 2;
+        
         keeper.width = canvas.width * 0.1;
         keeper.height = canvas.width * 0.04;
         keeper.y = goal.height - keeper.height;
         keeper.state = 'idle';
-
+        
         if (gamePhase === 'player_shot') {
             gameState = 'aiming';
             ball.x = canvas.width / 2;
@@ -220,12 +223,15 @@ const game = () => {
         decideKeeperDive('player');
     };
 
+    // GÜNCELLENDİ: Kaleci Zekası artık levelConfig'den besleniyor
     const decideKeeperDive = (who) => {
+        const config = levelConfig[currentLevel];
         let targetX;
         if (who === 'ai') {
             const timeToGoal = Math.abs((ball.y - goal.height) / ball.vy);
             const finalBallX = ball.x + ball.vx * timeToGoal;
-            const errorMargin = goal.width * 0.4 * (Math.random() - 0.5);
+            // Kalecinin hata payı artık level'e göre değişiyor
+            const errorMargin = goal.width * config.keeperError * (Math.random() - 0.5);
             targetX = finalBallX + errorMargin;
         } else {
             targetX = aimTarget.x;
@@ -448,6 +454,10 @@ const game = () => {
         }
         if (lives <= 0) {
             alert("Bugünkü tüm oynama haklarınızı kullandınız!");
+            const loginContainer = document.getElementById('login-container');
+            const gameContainer = document.getElementById('game-container');
+            if(loginContainer) loginContainer.classList.remove('hidden');
+            if(gameContainer) gameContainer.classList.add('hidden');
             return;
         }
         setCanvasDimensions();
