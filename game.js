@@ -1,107 +1,63 @@
-// Önce Three.js sahnesi kurulur
+console.log("game.js yüklendi.");
 
-let scene, camera, renderer, ball, goal;
-let level = 1;
-let currentTurn = 'kyrosil'; // AI alternates
+const game = () => {
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error("Canvas elementi bulunamadı!");
+        return;
+    }
 
-initScene();
-animate();
+    const ctx = canvas.getContext('2d');
 
-// Sahne kurulumu
-function initScene() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
+    const setCanvasDimensions = () => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 5, 10);
-  camera.lookAt(0, 0, 0);
+        let canvasWidth = Math.min(screenWidth * 0.9, 800);
+        let canvasHeight = canvasWidth * (9 / 16);
 
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.getElementById('gameContainer').appendChild(renderer.domElement);
+        if (canvasHeight > screenHeight * 0.9) {
+            canvasHeight = screenHeight * 0.9;
+            canvasWidth = canvasHeight * (16 / 9);
+        }
 
-  // Zemin
-  const groundGeometry = new THREE.PlaneGeometry(20, 20);
-  const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 });
-  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-  ground.rotation.x = -Math.PI / 2;
-  scene.add(ground);
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+    };
 
-  // Kale
-  const goalGeometry = new THREE.BoxGeometry(4, 2, 0.1);
-  const goalMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  goal = new THREE.Mesh(goalGeometry, goalMaterial);
-  goal.position.set(0, 1, -6);
-  scene.add(goal);
+    const drawPitch = () => {
+        ctx.fillStyle = '#2a7e2a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Top
-  const ballGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-  const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  ball = new THREE.Mesh(ballGeometry, ballMaterial);
-  ball.position.set(0, 0.3, 0);
-  scene.add(ball);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
 
-  document.addEventListener('click', handleShot);
-}
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width * 0.1, 0, 2 * Math.PI);
+        ctx.stroke();
 
-// Oyun döngüsü
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
+        console.log("Oyun alanı çizildi.");
+    };
 
-// Basit şut simülasyonu
-function handleShot() {
-  if (currentTurn === 'kyrosil') {
-    // Oyuncu şutu: rastgele yön
-    const xDir = (Math.random() - 0.5) * 4;
-    shootBall(xDir);
-    currentTurn = 'adidas';
-  } else {
-    // AI şutu: seviye bazlı hedef
-    const xDir = level >= 2 ? (Math.random() > 0.5 ? 2 : -2) : (Math.random() - 0.5) * 2;
-    shootBall(xDir);
-    currentTurn = 'kyrosil';
-    levelUpCheck();
-  }
-}
+    const init = (playerData) => {
+        console.log("Oyun başlatılıyor...", playerData);
+        setCanvasDimensions();
+        drawPitch();
+    };
+    
+    window.addEventListener('game:start', (event) => {
+        init(event.detail);
+    });
 
-// Şut hareketi
-function shootBall(xDirection) {
-  ball.position.set(0, 0.3, 0);
-  let z = 0;
-  const interval = setInterval(() => {
-    z -= 0.2;
-    ball.position.x += xDirection * 0.02;
-    ball.position.z = z;
-    if (z <= -6) clearInterval(interval);
-  }, 30);
-}
+    window.addEventListener('resize', () => {
+        // Yeniden boyutlandırma sırasında tekrar init çağırmak yerine sadece boyutları ve çizimi yenile
+        setCanvasDimensions();
+        drawPitch();
+    });
+};
 
-// Level geçiş ve ödül tetikleme
-function levelUpCheck() {
-  level++;
-  const gameText = document.getElementById("gameText");
-  if (level === 3) {
-    gameText.textContent = currentLanguage === 'tr'
-      ? 'Seviye 2 tamamlandı! Ödül ekranı açılıyor...'
-      : 'Level 2 completed! Reward screen opening...';
-
-    const email = document.getElementById("email").value;
-    const country = document.getElementById("country").value;
-    const username = document.getElementById("username").value;
-
-    const subject = currentLanguage === "tr" ? "Tebrikler!" : "Congratulations!";
-    const body = encodeURIComponent(
-      `Level 2 tamamlandı.\nMail: ${email}\nÜlke: ${country}\nKullanıcı adı: ${username}\nÖdül: ${currentLanguage === "tr" ? "1000 TL Hediye Çeki" : "€20 Gift Voucher"}`
-    );
-
-    setTimeout(() => {
-      window.location.href = `mailto:adidasgiveaway@kyrosil.eu?subject=${subject}&body=${body}`;
-    }, 3000);
-  } else {
-    gameText.textContent = currentLanguage === 'tr'
-      ? `Seviye ${level} başlıyor...`
-      : `Level ${level} begins...`;
-  }
-}
+game();
