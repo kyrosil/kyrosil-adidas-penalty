@@ -1,60 +1,73 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Kyrosil x Adidas: Penaltı Shoot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyrosil x Adidas Penaltı Shoot</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="lang-switch">
-      <button onclick="setLanguage('tr')">🇹🇷</button>
-      <button onclick="setLanguage('en')">🇬🇧</button>
+
+    <div class="container">
+        <header class="game-header">
+            <div class="logo-container">
+                <img src="https://kyrosil.eu/wp-content/uploads/2025/04/adsiz-tasarim.png" alt="Kyrosil Logo" class="logo">
+                <span class="logo-separator">x</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg" alt="Adidas Logo" class="logo">
+            </div>
+            <h1 data-lang-key="gameTitle">Kyrosil x Adidas Penaltı Shoot</h1>
+        </header>
+
+        <main class="game-intro">
+            <div class="lang-switcher">
+                <button id="lang-tr" class="active">Türkçe</button>
+                <button id="lang-en">English</button>
+            </div>
+            
+            <p data-lang-key="gameDescription">
+                Sırayla penaltı atılacak bu oyunda Kyrosil olarak Adidas'a meydan oku! Her level 3 tur sürer. 2, 4 ve 6. levellerde muhteşem ödüller seni bekliyor. Günlük 3 oynama hakkın var.
+            </p>
+
+            <form id="player-info-form">
+                <div class="form-group">
+                    <label for="email" data-lang-key="emailLabel">Adidas Mail Adresi</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="country" data-lang-key="countryLabel">Ülke</label>
+                    <select id="country" name="country" required>
+                        <option value="" data-lang-key="selectCountry">-- Ülke Seçin --</option>
+                        <option value="TR">Türkiye</option>
+                        <option value="DE">Germany</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                    <label for="username" data-lang-key="usernameLabel">EU Portal / Instagram Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group consent-group">
+                    <input type="checkbox" id="consent-checkbox" required>
+                    <label for="consent-checkbox" data-lang-key="consentLabel">Kişisel verilerimin işlenmesini onaylıyorum (KVKK).</label>
+                </div>
+                <button type="submit" id="start-game-btn" disabled data-lang-key="startGame">Oyuna Başla</button>
+            </form>
+        </main>
+
+        <footer class="rewards-info">
+            <h2 data-lang-key="rewardsTitle">Ödüller</h2>
+            <ul>
+                <li data-lang-key="reward1"><strong>Seviye 2:</strong> 20€ veya 1000 TL Hediye Çeki</li>
+                <li data-lang-key="reward2"><strong>Seviye 4:</strong> 50€ veya 2500 TL Hediye Çeki</li>
+                <li data-lang-key="reward3"><strong>Seviye 6:</strong> 200€ veya 10.000 TL Hediye Çeki</li>
+            </ul>
+        </footer>
     </div>
-    <div class="logos">
-      <img src="https://kyrosil.eu/wp-content/uploads/2025/04/adsiz-tasarim.png" alt="Kyrosil" class="logo">
-      <img src="https://upload.wikimedia.org/wikipedia/tr/0/0f/Adidas_Logo.svg" alt="Adidas" class="logo">
-    </div>
-    <h1 id="title">Kyrosil x Adidas: Penaltı Shoot</h1>
-    <p id="subtitle">Yapay zekâya karşı mücadele et, ödülleri kazan!</p>
-  </header>
 
-  <main>
-    <form id="userForm">
-      <label id="labelEmail">Adidas kayıtlı e-posta adresi:</label>
-      <input type="email" id="email" required>
-
-      <label id="labelCountry">Ülkeniz (Adidas bölgesi):</label>
-      <input type="text" id="country" required>
-
-      <label id="labelUsername">Instagram veya EU Portal kullanıcı adı:</label>
-      <input type="text" id="username" required>
-
-      <label class="consent">
-        <input type="checkbox" id="consent" required>
-        <span id="consentText">KVKK kapsamında kişisel verilerimin işlenmesini kabul ediyorum.</span>
-      </label>
-
-      <button type="submit" id="startBtn">Başla</button>
-    </form>
-
-    <section class="rewards">
-      <h2>🏆 Ödüller</h2>
-      <ul id="rewardList">
-        <li><strong>Seviye 2:</strong> 1000 TL hediye çeki</li>
-        <li><strong>Seviye 4:</strong> 2500 TL hediye çeki</li>
-        <li><strong>Seviye 6:</strong> 10.000 TL hediye çeki</li>
-      </ul>
-      <p id="rewardDesc">2 / 4 / 6. seviyeyi tamamladıktan sonra <em>adidasgiveaway@kyrosil.eu</em> adresine e-posta gönderilecektir.</p>
-    </section>
-
-    <div id="gameContainer" style="display:none;">
-      <p id="gameText">Oyun başlıyor... ⚽</p>
-    </div>
-  </main>
-  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-<script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
