@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
             reward1: '<strong>Seviye 2:</strong> 20€ veya 1000 TL Hediye Çeki',
             reward2: '<strong>Seviye 4:</strong> 50€ veya 2500 TL Hediye Çeki',
             reward3: '<strong>Seviye 6:</strong> 200€ veya 10.000 TL Hediye Çeki',
-            limitReached: 'Bugünkü 3 oynama hakkınızın tümünü kullandınız. Lütfen yarın tekrar deneyin!'
+            limitReached: 'Bugünkü 3 oynama hakkınızın tümünü kullandınız. Lütfen yarın tekrar deneyin!',
+            mobileInstruction: 'Nişan almak için sürükle, şut için bırak!'
         },
         'en': {
             gameTitle: 'Kyrosil x Adidas Penalty Shootout',
@@ -29,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
             reward1: '<strong>Level 2:</strong> €20 or 1000 TL Gift Voucher',
             reward2: '<strong>Level 4:</strong> €50 or 2500 TL Gift Voucher',
             reward3: '<strong>Level 6:</strong> €200 or 10.000 TL Gift Voucher',
-            limitReached: 'You have used all of your 3 plays for today. Please try again tomorrow!'
+            limitReached: 'You have used all of your 3 plays for today. Please try again tomorrow!',
+            mobileInstruction: 'Drag to aim, release to shoot!'
         }
     };
     
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startGameBtn = document.getElementById('start-game-btn');
     const elementsToTranslate = document.querySelectorAll('[data-lang-key]');
     const countrySelect = document.getElementById('country');
+    const mobileInstructionsEl = document.getElementById('mobile-instructions');
 
     const populateCountries = (lang) => {
         const countries = (lang === 'tr') ? tr_countries : en_euCountries;
@@ -74,6 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.innerHTML = translations[lang][key];
             }
         });
+        
+        if (mobileInstructionsEl && translations[lang].mobileInstruction) {
+            mobileInstructionsEl.textContent = translations[lang].mobileInstruction;
+        }
+
         populateCountries(lang);
         document.querySelector('.lang-switcher .active').classList.remove('active');
         document.getElementById(`lang-${lang}`).classList.add('active');
