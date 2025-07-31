@@ -27,7 +27,7 @@ const game = () => {
         5: { keeperSpeed: 0.022, aiShotSpeed: 0.035 },
         6: { keeperSpeed: 0.025, aiShotSpeed: 0.036 }
     };
-
+    
     // --- Oyun Elementleri ---
     const ball = { x: 0, y: 0, radius: 0, vx: 0, vy: 0, speed: 0 };
     const keeper = { x: 0, y: 0, width: 0, height: 0, state: 'idle', diveTarget: { x: 0, y: 0 }, diveSpeed: 0, idleAnimTime: 0 };
@@ -51,17 +51,20 @@ const game = () => {
     const setupTurn = () => {
         const config = levelConfig[currentLevel];
         message.visible = false;
+        
         ball.radius = canvas.width * 0.025;
         ball.vx = 0;
         ball.vy = 0;
+        
         goal.width = canvas.width * 0.35;
         goal.height = goal.width * 0.45;
         goal.x = (canvas.width - goal.width) / 2;
+        
         keeper.width = canvas.width * 0.1;
         keeper.height = canvas.width * 0.04;
         keeper.y = goal.height - keeper.height;
         keeper.state = 'idle';
-
+        
         if (gamePhase === 'player_shot') {
             gameState = 'aiming';
             ball.x = canvas.width / 2;
@@ -137,14 +140,24 @@ const game = () => {
 
     const drawBall = () => {
         const gradient = ctx.createRadialGradient(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, 0, ball.x, ball.y, ball.radius * 1.5);
-        gradient.addColorStop(0, '#ffffff'); grad.addColorStop(0.8, '#f0f0f0'); grad.addColorStop(1, '#cccccc');
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(0.8, '#f0f0f0');
+        gradient.addColorStop(1, '#cccccc');
         ctx.fillStyle = gradient;
-        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI); ctx.fill(); ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
         ctx.fillStyle = '#222222';
         const panelSize = ball.radius * 0.3;
         ctx.beginPath();
-        ctx.moveTo(ball.x, ball.y - panelSize); ctx.lineTo(ball.x + panelSize * 0.95, ball.y - panelSize * 0.3); ctx.lineTo(ball.x + panelSize * 0.6, ball.y + panelSize * 0.8); ctx.lineTo(ball.x - panelSize * 0.6, ball.y + panelSize * 0.8); ctx.lineTo(ball.x - panelSize * 0.95, ball.y - panelSize * 0.3);
-        ctx.closePath(); ctx.fill();
+        ctx.moveTo(ball.x, ball.y - panelSize);
+        ctx.lineTo(ball.x + panelSize * 0.95, ball.y - panelSize * 0.3);
+        ctx.lineTo(ball.x + panelSize * 0.6, ball.y + panelSize * 0.8);
+        ctx.lineTo(ball.x - panelSize * 0.6, ball.y + panelSize * 0.8);
+        ctx.lineTo(ball.x - panelSize * 0.95, ball.y - panelSize * 0.3);
+        ctx.closePath();
+        ctx.fill();
     };
 
     const drawAim = () => {
@@ -254,11 +267,14 @@ const game = () => {
 
         const ballPastGoalLine = ball.y < goal.height;
         if (!ballPastGoalLine) {
-            // Eğer top ekranın çok dışına çıkarsa, 'aut' olarak kabul et ve hakkı düşür
             if (ball.y < -ball.radius * 5 || ball.x < -ball.radius * 5 || ball.x > canvas.width + ball.radius * 5) {
                 displayMessage("AUT!", "#F44336");
-                loseLife();
-                gameState = 'result'; // Oyunu durdur
+                if (gamePhase === 'player_shot') {
+                    loseLife();
+                } else {
+                    winLevel();
+                }
+                gameState = 'result';
             }
             return;
         }
@@ -304,7 +320,6 @@ const game = () => {
 
     const loseLife = () => {
         lives--;
-        // LocalStorage güncellemesi eklenecek
         if (lives > 0) {
             gamePhase = 'player_shot';
             setTimeout(setupTurn, 2000);
@@ -340,7 +355,6 @@ const game = () => {
             aimTarget.y = clientY - rect.top;
             aimTarget.visible = true;
         };
-
         const handleClickOrTouch = (e) => {
             if (gameState === 'aiming') {
                 shoot();
@@ -348,25 +362,26 @@ const game = () => {
                 playerDive();
             }
         };
-
         canvas.addEventListener('mousemove', updateAimPosition);
         canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateAimPosition(e); });
         canvas.addEventListener('mouseleave', () => { aimTarget.visible = false; });
         canvas.addEventListener('click', handleClickOrTouch);
-        canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleClickOrTouch(); aimTarget.visible = false; });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleClickOrTouch();
+            aimTarget.visible = false;
+        });
         window.addEventListener('resize', () => {
             setCanvasDimensions();
             setupTurn();
         });
     };
 
-    // --- OYUN DÖNGÜSÜ ---
     const gameLoop = () => {
         if (gameState !== 'finished') {
             updateKeeper();
             updateBallPosition();
         }
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawPitch();
         drawFieldMarkings();
@@ -375,11 +390,9 @@ const game = () => {
         drawBall();
         drawAim();
         drawUI();
-
         requestAnimationFrame(gameLoop);
     };
 
-    // --- OYUN BAŞLATMA ---
     const init = (pData) => {
         playerData = pData;
         console.log("Oyun başlatılıyor...", playerData);
@@ -388,8 +401,10 @@ const game = () => {
         setupEventListeners();
         gameLoop();
     };
-    
-    window.addEventListener('game:start', (event) => { init(event.detail); });
+
+    window.addEventListener('game:start', (event) => {
+        init(event.detail);
+    });
 };
 
 game();
