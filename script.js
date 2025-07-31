@@ -1,86 +1,143 @@
-let currentLanguage = 'tr';
+// Tüm kodun, sayfa tamamen yüklendikten sonra çalışmasını sağlar.
+document.addEventListener('DOMContentLoaded', () => {
 
-const translations = {
-  tr: {
-    title: "Kyrosil x Adidas: Penaltı Shoot",
-    subtitle: "Yapay zekâya karşı mücadele et, ödülleri kazan!",
-    labelEmail: "Adidas kayıtlı e-posta adresi:",
-    labelCountry: "Ülkeniz (Adidas bölgesi):",
-    labelUsername: "Instagram veya EU Portal kullanıcı adı:",
-    consentText: "KVKK kapsamında kişisel verilerimin işlenmesini kabul ediyorum.",
-    startBtn: "Başla",
-    rewards: ["1000 TL hediye çeki", "2500 TL hediye çeki", "10.000 TL hediye çeki"],
-    rewardNote: "2 / 4 / 6. seviyeyi tamamladıktan sonra adidasgiveaway@kyrosil.eu adresine e-posta gönderilecektir."
-  },
-  en: {
-    title: "Kyrosil x Adidas: Penalty Shoot",
-    subtitle: "Defeat the Adidas AI and win rewards!",
-    labelEmail: "Adidas website registered email:",
-    labelCountry: "Country (Adidas region):",
-    labelUsername: "Instagram or EU Portal username:",
-    consentText: "I agree to the processing of my personal data under GDPR.",
-    startBtn: "Start",
-    rewards: ["€20 gift voucher", "€50 gift voucher", "€200 gift voucher"],
-    rewardNote: "After completing Levels 2 / 4 / 6, you'll be directed to send a reward claim to adidasgiveaway@kyrosil.eu."
-  }
-};
-
-function setLanguage(lang) {
-  currentLanguage = lang;
-  const t = translations[lang];
-
-  document.getElementById("title").textContent = t.title;
-  document.getElementById("subtitle").textContent = t.subtitle;
-  document.getElementById("labelEmail").textContent = t.labelEmail;
-  document.getElementById("labelCountry").textContent = t.labelCountry;
-  document.getElementById("labelUsername").textContent = t.labelUsername;
-  document.getElementById("consentText").textContent = t.consentText;
-  document.getElementById("startBtn").textContent = t.startBtn;
-
-  const rewardList = document.getElementById("rewardList");
-  rewardList.innerHTML = "";
-  t.rewards.forEach((rwd, i) => {
-    rewardList.innerHTML += `<li><strong>${lang === "tr" ? "Seviye" : "Level"} ${i * 2 + 2}:</strong> ${rwd}</li>`;
-  });
-  document.getElementById("rewardDesc").textContent = t.rewardNote;
-}
-
-// Başlangıç dili
-setLanguage(currentLanguage);
-
-// Form gönderimi
-document.getElementById("userForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  document.getElementById("userForm").style.display = "none";
-  document.querySelector(".rewards").style.display = "none";
-  document.getElementById("gameContainer").style.display = "block";
-  startGame(); // Oyunu başlatan fonksiyon
-});
-
-// Demo oyun mantığı
-let level = 1;
-function startGame() {
-  const gameText = document.getElementById("gameText");
-
-  gameText.textContent = currentLanguage === "tr"
-    ? `Seviye ${level} başlıyor... Kyrosil ve Adidas sırayla penaltı atıyor!`
-    : `Level ${level} begins... Kyrosil and Adidas take turns shooting!`;
-
-  // Demo: 2. seviye sonunda ödül tetikleme
-  if (level === 2) {
-    const form = {
-      email: document.getElementById("email").value,
-      country: document.getElementById("country").value,
-      username: document.getElementById("username").value
+    // --- Dil Çevirileri için Nesne ---
+    const translations = {
+        'tr': {
+            gameTitle: 'Kyrosil x Adidas Penaltı Shoot',
+            gameDescription: 'Sırayla penaltı atılacak bu oyunda Kyrosil olarak Adidas\'a meydan oku! Her level 3 tur sürer. 2, 4 ve 6. levellerde muhteşem ödüller seni bekliyor. Günlük 3 oynama hakkın var.',
+            emailLabel: 'Adidas Mail Adresi',
+            countryLabel: 'Ülke',
+            selectCountry: '-- Ülke Seçin --',
+            usernameLabel: 'EU Portal / Instagram Kullanıcı Adı',
+            consentLabel: 'Kişisel verilerimin işlenmesini onaylıyorum (KVKK).',
+            startGame: 'Oyuna Başla',
+            rewardsTitle: 'Ödüller',
+            reward1: '<strong>Seviye 2:</strong> 20€ veya 1000 TL Hediye Çeki',
+            reward2: '<strong>Seviye 4:</strong> 50€ veya 2500 TL Hediye Çeki',
+            reward3: '<strong>Seviye 6:</strong> 200€ veya 10.000 TL Hediye Çeki',
+            limitReached: 'Bugünkü 3 oynama hakkınızın tümünü kullandınız. Lütfen yarın tekrar deneyin!'
+        },
+        'en': {
+            gameTitle: 'Kyrosil x Adidas Penalty Shootout',
+            gameDescription: 'Challenge Adidas as Kyrosil in this turn-based penalty shootout! Each level has 3 rounds. Amazing prizes await you at levels 2, 4, and 6. You have 3 plays per day.',
+            emailLabel: 'Adidas Email Address',
+            countryLabel: 'Country',
+            selectCountry: '-- Select Country --',
+            usernameLabel: 'EU Portal / Instagram Username',
+            consentLabel: 'I consent to the processing of my personal data (GDPR).',
+            startGame: 'Start Game',
+            rewardsTitle: 'Rewards',
+            reward1: '<strong>Level 2:</strong> €20 or 1000 TL Gift Voucher',
+            reward2: '<strong>Level 4:</strong> €50 or 2500 TL Gift Voucher',
+            reward3: '<strong>Level 6:</strong> €200 or 10.000 TL Gift Voucher',
+            limitReached: 'You have used all of your 3 plays for today. Please try again tomorrow!'
+        }
     };
-    const subject = currentLanguage === "tr" ? "Tebrikler!" : "Congratulations!";
-    const body = encodeURIComponent(
-      `${currentLanguage === "tr" ? "Kyrosil x Adidas Penaltı Shoot oyununu başarıyla tamamladınız." : "You have successfully completed Kyrosil x Adidas Penalty Shoot."}\nLevel: 2\nMail: ${form.email}\nÜlke: ${form.country}\nKullanıcı adı: ${form.username}\nÖdül: ${currentLanguage === "tr" ? "1000 TL hediye çeki" : "€20 gift voucher"}`
-    );
-    setTimeout(() => {
-      window.location.href = `mailto:adidasgiveaway@kyrosil.eu?subject=${subject}&body=${body}`;
-    }, 3000);
-  }
 
-  level++;
-}
+    // --- HTML Elementlerini Seçme ---
+    const langButtons = document.querySelectorAll('.lang-switcher button');
+    const form = document.getElementById('player-info-form');
+    const inputs = form.querySelectorAll('input, select');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const elementsToTranslate = document.querySelectorAll('[data-lang-key]');
+
+    // --- Dil Değiştirme Fonksiyonu ---
+    const changeLanguage = (lang) => {
+        elementsToTranslate.forEach(element => {
+            const key = element.getAttribute('data-lang-key');
+            if (translations[lang][key]) {
+                element.innerHTML = translations[lang][key];
+            }
+        });
+        // Aktif dil butonunu ayarla
+        document.querySelector('.lang-switcher .active').classList.remove('active');
+        document.getElementById(`lang-${lang}`).classList.add('active');
+        // Seçilen dili hafızaya kaydet
+        localStorage.setItem('preferredLanguage', lang);
+    };
+
+    // --- Form Doğrulama Fonksiyonu ---
+    const validateForm = () => {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                if (!input.checked) isValid = false;
+            } else {
+                if (input.value.trim() === '') isValid = false;
+            }
+        });
+        startGameBtn.disabled = !isValid;
+    };
+
+    // --- Günlük Oynama Hakkı Kontrolü ---
+    const checkPlayLimit = () => {
+        const today = new Date().toISOString().split('T')[0]; // Bugünün tarihi YYYY-MM-DD formatında
+        const playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
+
+        if (playData && playData.date === today && playData.count >= 3) {
+            alert(translations[localStorage.getItem('preferredLanguage') || 'tr'].limitReached);
+            form.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+            return false;
+        }
+        return true;
+    };
+    
+    // --- Oynama Hakkını Güncelleme Fonksiyonu ---
+    const updatePlayCount = () => {
+        const today = new Date().toISOString().split('T')[0];
+        let playData = JSON.parse(localStorage.getItem('kyrosilAdidasPlayData'));
+
+        if (playData && playData.date === today) {
+            playData.count++;
+        } else {
+            playData = { date: today, count: 1 };
+        }
+        localStorage.setItem('kyrosilAdidasPlayData', JSON.stringify(playData));
+    };
+
+    // --- Olay Dinleyicilerini (Event Listeners) Ayarlama ---
+
+    // Dil butonlarına tıklama olayı
+    langButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            changeLanguage(button.id.split('-')[1]);
+        });
+    });
+
+    // Formdaki her değişiklikte doğrulamayı çalıştır
+    form.addEventListener('input', validateForm);
+
+    // Form gönderildiğinde (Oyuna Başla'ya tıklandığında)
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Sayfanın yeniden yüklenmesini engelle
+        
+        if (checkPlayLimit()) {
+            updatePlayCount();
+            
+            const playerData = {
+                email: document.getElementById('email').value,
+                country: document.getElementById('country').value,
+                username: document.getElementById('username').value,
+                lang: localStorage.getItem('preferredLanguage') || 'tr'
+            };
+            
+            console.log('Oyun Başlatılıyor! Oyuncu Bilgileri:', playerData);
+            alert('Oyun Başlıyor!');
+
+            // TODO: Modül 2'ye (Oyun Ekranı) geçiş kodu buraya gelecek.
+            // Örneğin, giriş ekranını gizleyip oyun ekranını gösterebiliriz.
+        }
+    });
+
+    // --- Başlangıç Ayarları ---
+    
+    // Tarayıcı hafızasındaki dili kontrol et, yoksa varsayılan 'tr' olsun
+    const preferredLanguage = localStorage.getItem('preferredLanguage') || 'tr';
+    changeLanguage(preferredLanguage);
+    
+    // Sayfa yüklendiğinde oynama hakkını kontrol et
+    checkPlayLimit();
+    // Formun başlangıçtaki durumunu doğrula
+    validateForm();
+});
